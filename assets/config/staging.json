@@ -1,0 +1,9 @@
+{
+    "env": "staging",
+    "apiBaseUrl": "https://staging-api.conference.example.com/api",
+    "wsBaseUrl": "wss://staging-api.conference.example.com/ws",
+    "livekitUrl": "wss://staging-livekit.conference.example.com",
+    "port": 443,
+    "connectionTimeout": 30,
+    "enableLogs": true
+}
