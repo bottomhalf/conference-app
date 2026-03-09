@@ -111,7 +111,7 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.surfaceDark,
+      backgroundColor: AppTheme.surface(context),
       body: SafeArea(
         child: _isConnecting
             ? _buildConnectingState()
@@ -141,7 +141,7 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
           Text(
             'Joining meeting…',
             style: TextStyle(
-              color: AppTheme.textPrimary,
+              color: AppTheme.textPrimary(context),
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),
@@ -149,7 +149,10 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
           const SizedBox(height: 8),
           Text(
             'Connecting to the conference server',
-            style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+            style: TextStyle(
+              color: AppTheme.textSecondary(context),
+              fontSize: 14,
+            ),
           ),
         ],
       ),
@@ -174,7 +177,7 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
             Text(
               'Connection Failed',
               style: TextStyle(
-                color: AppTheme.textPrimary,
+                color: AppTheme.textPrimary(context),
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
               ),
@@ -183,7 +186,10 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
             Text(
               _errorMessage ?? 'Unknown error',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+              style: TextStyle(
+                color: AppTheme.textSecondary(context),
+                fontSize: 14,
+              ),
             ),
             const SizedBox(height: 28),
             Row(
@@ -192,7 +198,7 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
                 OutlinedButton(
                   onPressed: () => Navigator.of(context).pop(),
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: AppTheme.dividerColor),
+                    side: BorderSide(color: AppTheme.divider(context)),
                   ),
                   child: const Text('Go Back'),
                 ),
@@ -254,10 +260,10 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.cardDark,
+                  color: AppTheme.card(context),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: AppTheme.dividerColor.withValues(alpha: 0.4),
+                    color: AppTheme.divider(context).withValues(alpha: 0.4),
                   ),
                 ),
                 child: Row(
@@ -290,10 +296,10 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
               borderRadius: BorderRadius.circular(24),
               child: Container(
                 decoration: BoxDecoration(
-                  color: AppTheme.cardDark,
+                  color: AppTheme.card(context),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: AppTheme.dividerColor.withValues(alpha: 0.3),
+                    color: AppTheme.divider(context).withValues(alpha: 0.3),
                   ),
                 ),
                 child: Center(
@@ -327,7 +333,7 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
                       Text(
                         _isCameraOn ? 'Camera is on' : 'Camera is off',
                         style: TextStyle(
-                          color: AppTheme.textSecondary,
+                          color: AppTheme.textSecondary(context),
                           fontSize: 13,
                         ),
                       ),
@@ -343,11 +349,11 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
         Container(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
           decoration: BoxDecoration(
-            color: AppTheme.cardDark.withValues(alpha: 0.95),
+            color: AppTheme.card(context).withValues(alpha: 0.95),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
             border: Border(
               top: BorderSide(
-                color: AppTheme.dividerColor.withValues(alpha: 0.3),
+                color: AppTheme.divider(context).withValues(alpha: 0.3),
               ),
             ),
           ),
@@ -376,8 +382,8 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
                 activeColor: AppTheme.accentPurple,
               ),
               _buildControlButton(
-                icon: Icons.chat_bubble_outline_rounded,
-                label: 'Chat',
+                icon: Icons.groups_rounded,
+                label: 'Team',
                 isActive: false,
                 onTap: () {},
               ),
@@ -396,7 +402,7 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
     required VoidCallback onTap,
     Color? activeColor,
   }) {
-    final color = activeColor ?? AppTheme.textPrimary;
+    final color = activeColor ?? AppTheme.textPrimary(context);
 
     return GestureDetector(
       onTap: onTap,
@@ -409,20 +415,20 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
             height: 52,
             decoration: BoxDecoration(
               color: isActive
-                  ? (activeColor ?? AppTheme.cardDarkAlt).withValues(
+                  ? (activeColor ?? AppTheme.cardAlt(context)).withValues(
                       alpha: 0.25,
                     )
-                  : AppTheme.cardDarkAlt,
+                  : AppTheme.cardAlt(context),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isActive
                     ? color.withValues(alpha: 0.4)
-                    : AppTheme.dividerColor.withValues(alpha: 0.3),
+                    : AppTheme.divider(context).withValues(alpha: 0.3),
               ),
             ),
             child: Icon(
               icon,
-              color: isActive ? color : AppTheme.textSecondary,
+              color: isActive ? color : AppTheme.textSecondary(context),
               size: 22,
             ),
           ),
@@ -432,7 +438,7 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w500,
-              color: AppTheme.textSecondary,
+              color: AppTheme.textSecondary(context),
             ),
           ),
         ],

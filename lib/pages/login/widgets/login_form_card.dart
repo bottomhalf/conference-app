@@ -18,8 +18,8 @@ class LoginFormCard extends GetView<LoginController> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.cardDark.withValues(alpha: 0.9),
-                AppTheme.cardDarkAlt.withValues(alpha: 0.75),
+                AppTheme.card(context).withValues(alpha: 0.9),
+                AppTheme.cardAlt(context).withValues(alpha: 0.75),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -38,7 +38,7 @@ class LoginFormCard extends GetView<LoginController> {
                 Text(
                   'Email',
                   style: TextStyle(
-                    color: AppTheme.textSecondary,
+                    color: AppTheme.textSecondary(context),
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -47,7 +47,10 @@ class LoginFormCard extends GetView<LoginController> {
                 TextFormField(
                   controller: controller.emailCtrl,
                   keyboardType: TextInputType.emailAddress,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(
+                    color: AppTheme.textPrimary(context),
+                    fontSize: 14,
+                  ),
                   decoration: const InputDecoration(
                     hintText: 'you@company.com',
                     prefixIcon: Icon(Icons.email_outlined, size: 20),
@@ -65,7 +68,7 @@ class LoginFormCard extends GetView<LoginController> {
                 Text(
                   'Password',
                   style: TextStyle(
-                    color: AppTheme.textSecondary,
+                    color: AppTheme.textSecondary(context),
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -75,7 +78,10 @@ class LoginFormCard extends GetView<LoginController> {
                   () => TextFormField(
                     controller: controller.passwordCtrl,
                     obscureText: controller.obscurePassword.value,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    style: TextStyle(
+                      color: AppTheme.textPrimary(context),
+                      fontSize: 14,
+                    ),
                     decoration: InputDecoration(
                       hintText: '••••••••',
                       prefixIcon: const Icon(
@@ -88,7 +94,7 @@ class LoginFormCard extends GetView<LoginController> {
                               ? Icons.visibility_off_rounded
                               : Icons.visibility_rounded,
                           size: 20,
-                          color: AppTheme.textSecondary,
+                          color: AppTheme.textSecondary(context),
                         ),
                         onPressed: controller.togglePasswordVisibility,
                       ),

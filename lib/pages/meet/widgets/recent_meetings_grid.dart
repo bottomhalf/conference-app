@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../models/meeting_model.dart';
 import '../../../theme/app_theme.dart';
-import '../home_controller.dart';
+import '../meet_controller.dart';
 
 /// Displays top 6 recent meetings fetched from the API as a
 /// grid of glassmorphism cards.
-class RecentMeetingsGrid extends GetView<HomeController> {
+class RecentMeetingsGrid extends GetView<MeetController> {
   const RecentMeetingsGrid({super.key});
 
   @override
@@ -35,12 +35,15 @@ class RecentMeetingsGrid extends GetView<HomeController> {
               Icon(
                 Icons.cloud_off_rounded,
                 size: 40,
-                color: AppTheme.textSecondary,
+                color: AppTheme.textSecondary(context),
               ),
               const SizedBox(height: 12),
               Text(
                 'Couldn\'t load meetings',
-                style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+                style: TextStyle(
+                  color: AppTheme.textSecondary(context),
+                  fontSize: 14,
+                ),
               ),
               const SizedBox(height: 12),
               TextButton.icon(
@@ -66,12 +69,15 @@ class RecentMeetingsGrid extends GetView<HomeController> {
                 Icon(
                   Icons.videocam_off_rounded,
                   size: 40,
-                  color: AppTheme.textSecondary,
+                  color: AppTheme.textSecondary(context),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   'No recent meetings',
-                  style: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+                  style: TextStyle(
+                    color: AppTheme.textSecondary(context),
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
@@ -105,7 +111,7 @@ class _MeetingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<HomeController>();
+    final controller = Get.find<MeetController>();
 
     // Pick a unique gradient per card based on index
     final gradients = [
@@ -129,8 +135,8 @@ class _MeetingCard extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.cardDark.withValues(alpha: 0.9),
-                  AppTheme.cardDarkAlt.withValues(alpha: 0.75),
+                  AppTheme.card(context).withValues(alpha: 0.9),
+                  AppTheme.cardAlt(context).withValues(alpha: 0.75),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -164,10 +170,10 @@ class _MeetingCard extends StatelessWidget {
                   meeting.conversationName,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
-                    color: Colors.white,
+                    color: AppTheme.textPrimary(context),
                     height: 1.3,
                   ),
                 ),
@@ -183,7 +189,7 @@ class _MeetingCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppTheme.textSecondary,
+                        color: AppTheme.textSecondary(context),
                       ),
                     ),
                   ),
@@ -208,17 +214,17 @@ class _MeetingCard extends StatelessWidget {
                                 gradient: LinearGradient(colors: colorPair),
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: AppTheme.surfaceDark,
+                                  color: AppTheme.surface(context),
                                   width: 1.5,
                                 ),
                               ),
                               child: Center(
                                 child: Text(
                                   meeting.participants[i].initials,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 8,
                                     fontWeight: FontWeight.w700,
-                                    color: Colors.white,
+                                    color: AppTheme.textPrimary(context),
                                   ),
                                 ),
                               ),
@@ -233,7 +239,7 @@ class _MeetingCard extends StatelessWidget {
                         '+${meeting.participantCount - 3}',
                         style: TextStyle(
                           fontSize: 11,
-                          color: AppTheme.textSecondary,
+                          color: AppTheme.textSecondary(context),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -243,7 +249,7 @@ class _MeetingCard extends StatelessWidget {
                       meeting.timeAgo,
                       style: TextStyle(
                         fontSize: 11,
-                        color: AppTheme.textSecondary,
+                        color: AppTheme.textSecondary(context),
                       ),
                     ),
                   ],

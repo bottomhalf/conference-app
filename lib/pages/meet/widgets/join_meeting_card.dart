@@ -2,9 +2,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../theme/app_theme.dart';
-import '../home_controller.dart';
+import '../meet_controller.dart';
 
-class JoinMeetingCard extends GetView<HomeController> {
+class JoinMeetingCard extends GetView<MeetController> {
   const JoinMeetingCard({super.key});
 
   @override
@@ -18,8 +18,8 @@ class JoinMeetingCard extends GetView<HomeController> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppTheme.cardDark.withValues(alpha: 0.9),
-                AppTheme.cardDarkAlt.withValues(alpha: 0.75),
+                AppTheme.card(context).withValues(alpha: 0.9),
+                AppTheme.cardAlt(context).withValues(alpha: 0.75),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -75,7 +75,10 @@ class JoinMeetingCard extends GetView<HomeController> {
                 const SizedBox(height: 14),
                 TextFormField(
                   controller: controller.roomIdCtrl,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(
+                    color: AppTheme.textPrimary(context),
+                    fontSize: 14,
+                  ),
                   decoration: const InputDecoration(
                     hintText: 'Room ID',
                     prefixIcon: Icon(Icons.tag_rounded, size: 20),
@@ -86,7 +89,10 @@ class JoinMeetingCard extends GetView<HomeController> {
                 const SizedBox(height: 14),
                 TextFormField(
                   controller: controller.accessCodeCtrl,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(
+                    color: AppTheme.textPrimary(context),
+                    fontSize: 14,
+                  ),
                   obscureText: true,
                   decoration: const InputDecoration(
                     hintText: 'Access Passcode (Optional)',

@@ -1,4 +1,3 @@
-import 'package:conference_sdk/conference_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -6,12 +5,19 @@ import 'package:permission_handler/permission_handler.dart';
 import 'config/app_config.dart';
 import 'core/storage/storage.dart';
 import 'services/http_service.dart';
-import 'pages/home/home_controller.dart';
-import 'pages/home/home_page.dart';
+import 'services/meeting_service.dart';
+import 'pages/team/team_controller.dart';
+import 'pages/team/chat_detail_controller.dart';
+import 'pages/team/chat_detail_page.dart';
+import 'pages/meet/meet_controller.dart';
+import 'pages/calendar/calendar_controller.dart';
 import 'pages/login/login_controller.dart';
 import 'pages/login/login_page.dart';
-import 'pages/meeting_room/meeting_room_page.dart';
+import 'pages/main/main_controller.dart';
+import 'pages/main/main_page.dart';
 import 'theme/app_theme.dart';
+import 'theme/theme_service.dart';
+import 'widgets/meeting_overlay_manager.dart';
 
 Future<void> _checkPermissions() async {
   var status = await Permission.bluetooth.request();
@@ -30,6 +36,13 @@ void main() async {
   await AppConfig.initialize();
   await StorageService.instance.initialize();
   await HttpService.instance.initialize();
+
+  // Register MeetingService as a permanent GetxService
+  Get.put(MeetingService(), permanent: true);
+
+  // Register ThemeService
+  Get.put(ThemeService(), permanent: true);
+
   runApp(const MyApp());
 }
 
@@ -41,7 +54,9 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Conference',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeService.instance.themeMode,
       initialRoute: '/login',
       getPages: [
         GetPage(
@@ -52,20 +67,27 @@ class MyApp extends StatelessWidget {
           }),
         ),
         GetPage(
-          name: '/home',
-          page: () => const HomePage(),
+          name: '/main',
+          page: () => const MainPage(),
           binding: BindingsBuilder(() {
-            Get.lazyPut(() => HomeController());
+            Get.lazyPut(() => MainController());
+            Get.lazyPut(() => TeamController());
+            Get.lazyPut(() => MeetController());
+            Get.lazyPut(() => CalendarController());
           }),
         ),
         GetPage(
-          name: '/meeting',
-          page: () {
-            final manager = Get.arguments as ConferenceManager;
-            return MeetingRoomPage(conferenceManager: manager);
-          },
+          name: '/chat-detail',
+          page: () => const ChatDetailPage(),
+          binding: BindingsBuilder(() {
+            Get.lazyPut(() => ChatDetailController());
+          }),
         ),
       ],
+      // Wrap entire app with the overlay manager
+      builder: (context, child) {
+        return MeetingOverlayManager(child: child ?? const SizedBox.shrink());
+      },
     );
   }
 }

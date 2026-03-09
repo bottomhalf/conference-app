@@ -1,53 +1,102 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import '../../services/meeting_service.dart';
 import '../../theme/app_theme.dart';
-import 'home_controller.dart';
+import 'meet_controller.dart';
 import 'widgets/quick_action_tile.dart';
 import 'widgets/recent_meetings_grid.dart';
 
-class HomePage extends GetView<HomeController> {
-  const HomePage({super.key});
+class MeetPage extends GetView<MeetController> {
+  const MeetPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          // ── Background gradient orbs ──
-          _backgroundOrbs(),
+    return Obx(() {
+      final isInMeeting = MeetingService.instance.isInMeeting.value;
 
-          // ── Main content ──
-          SafeArea(
-            child: RefreshIndicator(
-              onRefresh: controller.fetchRecentMeetings,
-              color: AppTheme.accentPurple,
-              backgroundColor: AppTheme.cardDark,
-              child: CustomScrollView(
-                slivers: [
-                  // ─── App Bar ───
-                  SliverToBoxAdapter(child: _buildAppBar(context)),
+      return PopScope(
+        canPop: !isInMeeting,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
 
-                  // ─── Welcome Section ───
-                  SliverToBoxAdapter(child: _buildWelcome(context)),
-
-                  // ─── Quick Actions ───
-                  SliverToBoxAdapter(child: _buildQuickActions(context)),
-
-                  // ─── Recent Meetings Header ───
-                  SliverToBoxAdapter(child: _buildRecentHeader(context)),
-
-                  // ─── Recent Meetings Grid (from API) ───
-                  const SliverToBoxAdapter(child: RecentMeetingsGrid()),
-                ],
+          final bool? shouldPop = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              backgroundColor: AppTheme.card(context),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
+              title: Text(
+                'Exit Application?',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              content: Text(
+                'Currently a meeting is ongoing. If you exit, you will automatically be disconnected from the meeting.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: AppTheme.accentPurple),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text(
+                    'Exit',
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          );
 
-  // ─── Section Builders ──────────────────────────────────────────
+          if (shouldPop == true) {
+            await MeetingService.instance.leaveMeeting();
+            SystemNavigator.pop();
+          }
+        },
+        child: Scaffold(
+          body: Stack(
+            children: [
+              // ── Background gradient orbs ──
+              _backgroundOrbs(),
+
+              // ── Main content ──
+              SafeArea(
+                child: RefreshIndicator(
+                  onRefresh: controller.fetchRecentMeetings,
+                  color: AppTheme.accentPurple,
+                  backgroundColor: AppTheme.card(context),
+                  child: CustomScrollView(
+                    slivers: [
+                      // ─── App Bar ───
+                      SliverToBoxAdapter(child: _buildAppBar(context)),
+
+                      // ─── Welcome Section ───
+                      SliverToBoxAdapter(child: _buildWelcome(context)),
+
+                      // ─── Quick Actions ───
+                      SliverToBoxAdapter(child: _buildQuickActions(context)),
+
+                      // ─── Recent Meetings Header ───
+                      SliverToBoxAdapter(child: _buildRecentHeader(context)),
+
+                      // ─── Recent Meetings Grid (from API) ───
+                      const SliverToBoxAdapter(child: RecentMeetingsGrid()),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
 
   Widget _backgroundOrbs() {
     return Stack(

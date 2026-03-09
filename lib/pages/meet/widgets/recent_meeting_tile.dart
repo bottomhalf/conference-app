@@ -25,10 +25,10 @@ class RecentMeetingTile extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppTheme.cardDark.withValues(alpha: 0.8),
+            color: AppTheme.card(context).withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: AppTheme.dividerColor.withValues(alpha: 0.3),
+              color: AppTheme.divider(context).withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -49,10 +49,10 @@ class RecentMeetingTile extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
-                        color: Colors.white,
+                        color: AppTheme.textPrimary(context),
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -60,7 +60,7 @@ class RecentMeetingTile extends StatelessWidget {
                       subtitle,
                       style: TextStyle(
                         fontSize: 13,
-                        color: AppTheme.textSecondary,
+                        color: AppTheme.textSecondary(context),
                       ),
                     ),
                   ],
@@ -96,7 +96,10 @@ class RecentMeetingTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(Icons.chevron_right_rounded, color: AppTheme.textSecondary),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: AppTheme.textSecondary(context),
+              ),
             ],
           ),
         ),

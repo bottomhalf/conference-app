@@ -1,19 +1,17 @@
-import 'package:conference/config/app_config.dart';
 import 'package:conference/models/api_response.dart';
 import 'package:conference/models/meeting_model.dart';
 import 'package:conference/services/http_service.dart';
-import 'package:conference_sdk/conference_sdk.dart';
+import 'package:conference/services/meeting_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class HomeController extends GetxController {
+class MeetController extends GetxController {
   final tokenCtrl = TextEditingController();
   final roomIdCtrl = TextEditingController();
   final accessCodeCtrl = TextEditingController();
   final formKey = GlobalKey<FormState>();
   final http = HttpService.instance;
 
-  final ConferenceManager conferenceManager = ConferenceManager();
   final isJoining = false.obs;
 
   // ─── Recent Meetings ────────────────────────────────────────────
@@ -45,8 +43,29 @@ class HomeController extends GetxController {
     }
   }
 
+  /// Open a recent meeting → triggers the PiP overlay.
   void openMeeting(MeetingModel meeting) {
-    Get.toNamed('/meeting', arguments: conferenceManager);
+    isJoining.value = true;
+
+    try {
+      MeetingService.instance.joinMeeting(
+        roomId: meeting.id,
+        participantName: 'Vivek Kumar',
+        meetingTitle: meeting.conversationName,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Connection Failed',
+        'Failed to join: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: const Color(0xFFFF6B6B),
+        colorText: Colors.white,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    } finally {
+      isJoining.value = false;
+    }
   }
 
   // ─── Join Meeting ───────────────────────────────────────────────
@@ -55,9 +74,11 @@ class HomeController extends GetxController {
     if (!formKey.currentState!.validate()) return;
 
     isJoining.value = true;
-
     try {
-      Get.toNamed('/meeting', arguments: conferenceManager);
+      MeetingService.instance.joinMeeting(
+        roomId: roomIdCtrl.text.trim(),
+        participantName: 'Vivek Kumar',
+      );
     } catch (e) {
       Get.snackbar(
         'Connection Failed',

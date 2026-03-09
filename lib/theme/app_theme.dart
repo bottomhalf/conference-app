@@ -3,17 +3,31 @@ import 'package:flutter/material.dart';
 class AppTheme {
   AppTheme._();
 
-  // ─── Brand Colours ─────────────────────────────────────────────
+  // ─── Dark Mode Brand Colours ───────────────────────────────────
   static const Color _primaryIndigo = Color(0xFF6264A7);
   static const Color _accentPurple = Color(0xFF7B83EB);
   static const Color _surfaceDark = Color(0xFF1B1A2E);
   static const Color _cardDark = Color(0xFF252440);
   static const Color _cardDarkAlt = Color(0xFF2D2B50);
-  static const Color _textPrimary = Color(0xFFF5F5F9);
-  static const Color _textSecondary = Color(0xFFB0AFCF);
-  static const Color _divider = Color(0xFF3A3860);
+  static const Color _textPrimaryDark = Color(0xFFF5F5F9);
+  static const Color _textSecondaryDark = Color(0xFFB0AFCF);
+  static const Color _dividerDark = Color(0xFF3A3860);
   static const Color _errorRed = Color(0xFFFF6B6B);
   static const Color _successGreen = Color(0xFF4ADE80);
+
+  // ─── Light Mode Brand Colours ──────────────────────────────────
+  static const Color _surfaceLight = Color(
+    0xFFEFF1F5,
+  ); // Slightly darker off-white for better card contrast
+  static const Color _cardLight = Color(0xFFFFFFFF);
+  static const Color _cardLightAlt = Color(
+    0xFFE4E7EC,
+  ); // Darker input field background
+  static const Color _textPrimaryLight = Color(
+    0xFF111827,
+  ); // Darker text for readability
+  static const Color _textSecondaryLight = Color(0xFF4B5563);
+  static const Color _dividerLight = Color(0xFFD1D5DB); // Darker divider
 
   // ─── Gradient ──────────────────────────────────────────────────
   static const LinearGradient accentGradient = LinearGradient(
@@ -41,7 +55,7 @@ class AppTheme {
         error: _errorRed,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
-        onSurface: _textPrimary,
+        onSurface: _textPrimaryDark,
         onError: Colors.white,
       ),
       fontFamily: 'Segoe UI',
@@ -52,10 +66,10 @@ class AppTheme {
         titleTextStyle: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.w700,
-          color: _textPrimary,
+          color: _textPrimaryDark,
           letterSpacing: -0.3,
         ),
-        iconTheme: IconThemeData(color: _textPrimary),
+        iconTheme: IconThemeData(color: _textPrimaryDark),
       ),
       cardTheme: CardThemeData(
         color: _cardDark,
@@ -66,8 +80,8 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: _cardDarkAlt,
-        hintStyle: const TextStyle(color: _textSecondary, fontSize: 14),
-        labelStyle: const TextStyle(color: _textSecondary, fontSize: 14),
+        hintStyle: const TextStyle(color: _textSecondaryDark, fontSize: 14),
+        labelStyle: const TextStyle(color: _textSecondaryDark, fontSize: 14),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20,
           vertical: 16,
@@ -78,7 +92,7 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: _divider.withValues(alpha: 0.5)),
+          borderSide: BorderSide(color: _dividerDark.withValues(alpha: 0.5)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -101,50 +115,192 @@ class AppTheme {
           ),
         ),
       ),
-      dividerColor: _divider,
+      dividerColor: _dividerDark,
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.w700,
-          color: _textPrimary,
+          color: _textPrimaryDark,
           letterSpacing: -0.5,
         ),
         headlineMedium: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.w600,
-          color: _textPrimary,
+          color: _textPrimaryDark,
           letterSpacing: -0.3,
         ),
         titleLarge: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          color: _textPrimary,
+          color: _textPrimaryDark,
         ),
         titleMedium: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w500,
-          color: _textPrimary,
+          color: _textPrimaryDark,
         ),
-        bodyLarge: TextStyle(fontSize: 15, color: _textPrimary, height: 1.5),
-        bodyMedium: TextStyle(fontSize: 14, color: _textSecondary, height: 1.5),
+        bodyLarge: TextStyle(
+          fontSize: 15,
+          color: _textPrimaryDark,
+          height: 1.5,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,
+          color: _textSecondaryDark,
+          height: 1.5,
+        ),
         labelLarge: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: _textPrimary,
+          color: _textPrimaryDark,
+        ),
+      ),
+    );
+  }
+
+  // ─── Light Theme ───────────────────────────────────────────────
+  static ThemeData get lightTheme {
+    return ThemeData(
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: _surfaceLight,
+      primaryColor: _primaryIndigo,
+      colorScheme: const ColorScheme.light(
+        primary: _primaryIndigo,
+        secondary: _accentPurple,
+        surface: _cardLight,
+        error: _errorRed,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: _textPrimaryLight,
+        onError: Colors.white,
+      ),
+      fontFamily: 'Segoe UI',
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: false,
+        titleTextStyle: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w700,
+          color: _textPrimaryLight,
+          letterSpacing: -0.3,
+        ),
+        iconTheme: IconThemeData(color: _textPrimaryLight),
+      ),
+      cardTheme: CardThemeData(
+        color: _cardLight,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: _cardLightAlt,
+        hintStyle: const TextStyle(color: _textSecondaryLight, fontSize: 14),
+        labelStyle: const TextStyle(color: _textSecondaryLight, fontSize: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 16,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: _dividerLight.withValues(alpha: 0.5)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: _accentPurple, width: 1.5),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _primaryIndigo,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          textStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.3,
+          ),
+        ),
+      ),
+      dividerColor: _dividerLight,
+      textTheme: const TextTheme(
+        headlineLarge: TextStyle(
+          fontSize: 28,
+          fontWeight: FontWeight.w700,
+          color: _textPrimaryLight,
+          letterSpacing: -0.5,
+        ),
+        headlineMedium: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+          color: _textPrimaryLight,
+          letterSpacing: -0.3,
+        ),
+        titleLarge: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: _textPrimaryLight,
+        ),
+        titleMedium: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: _textPrimaryLight,
+        ),
+        bodyLarge: TextStyle(
+          fontSize: 15,
+          color: _textPrimaryLight,
+          height: 1.5,
+        ),
+        bodyMedium: TextStyle(
+          fontSize: 14,
+          color: _textSecondaryLight,
+          height: 1.5,
+        ),
+        labelLarge: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: _textPrimaryLight,
         ),
       ),
     );
   }
 
   // ─── Helpers ───────────────────────────────────────────────────
-  static Color get surfaceDark => _surfaceDark;
-  static Color get cardDark => _cardDark;
-  static Color get cardDarkAlt => _cardDarkAlt;
-  static Color get textPrimary => _textPrimary;
-  static Color get textSecondary => _textSecondary;
+  // We provide getters that resolve based on current active brightness.
+  static Color surface(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? _surfaceDark
+      : _surfaceLight;
+  static Color card(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? _cardDark : _cardLight;
+  static Color cardAlt(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? _cardDarkAlt
+      : _cardLightAlt;
+  static Color textPrimary(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? _textPrimaryDark
+      : _textPrimaryLight;
+  static Color textSecondary(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? _textSecondaryDark
+      : _textSecondaryLight;
+  static Color divider(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? _dividerDark
+      : _dividerLight;
+
   static Color get primaryIndigo => _primaryIndigo;
   static Color get accentPurple => _accentPurple;
-  static Color get dividerColor => _divider;
   static Color get errorRed => _errorRed;
   static Color get successGreen => _successGreen;
 }

@@ -30,15 +30,15 @@ class QuickActionTile extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppTheme.cardDark.withValues(alpha: 0.85),
-                    AppTheme.cardDarkAlt.withValues(alpha: 0.7),
+                    AppTheme.card(context).withValues(alpha: 0.85),
+                    AppTheme.cardAlt(context).withValues(alpha: 0.7),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: AppTheme.dividerColor.withValues(alpha: 0.4),
+                  color: AppTheme.divider(context).withValues(alpha: 0.4),
                 ),
               ),
               child: Column(

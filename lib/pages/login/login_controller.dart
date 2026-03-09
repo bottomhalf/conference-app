@@ -35,8 +35,10 @@ class LoginController extends GetxController {
 
       if (responseBody != null) {
         _storage.setValue('user', responseBody);
+        // Correctly update the singleton state using updateFromJson
+        UserModel.instance.updateFromJson(responseBody);
         debugPrint('Login success: $responseBody');
-        Get.offAllNamed('/home');
+        Get.offAllNamed('/main');
       }
     } on ApiException catch (e) {
       _showError(e.message);

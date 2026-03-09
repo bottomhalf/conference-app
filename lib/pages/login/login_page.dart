@@ -28,7 +28,7 @@ class LoginPage extends GetView<LoginController> {
                     const SizedBox(height: 40),
                     const LoginFormCard(),
                     const SizedBox(height: 28),
-                    _buildFooter(),
+                    _buildFooter(context),
                   ],
                 ),
               ),
@@ -97,13 +97,16 @@ class LoginPage extends GetView<LoginController> {
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildFooter(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           "Don't have an account? ",
-          style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+          style: TextStyle(
+            color: AppTheme.textSecondary(context),
+            fontSize: 13,
+          ),
         ),
         GestureDetector(
           onTap: () {},
