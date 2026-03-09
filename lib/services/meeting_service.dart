@@ -1,6 +1,7 @@
 import 'package:conference/config/app_config.dart';
 import 'package:conference/services/http_service.dart';
 import 'package:conference_sdk/conference_sdk.dart';
+import 'package:livekit_client/livekit_client.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -23,6 +24,12 @@ class MeetingService extends GetxService {
   final isMicOn = true.obs;
   final isCameraOn = true.obs;
   final isScreenSharing = false.obs;
+
+  // Renderable Tracks
+  final activeScreenShareTrack = Rxn<VideoTrack>();
+  final activeVideoTrack = Rxn<VideoTrack>();
+
+  EventsListener<RoomEvent>? _roomListener;
 
   Room? _room;
   Room? get room => _room;
@@ -61,6 +68,9 @@ class MeetingService extends GetxService {
       _room = room;
       participantCount.value = room.remoteParticipants.length + 1;
 
+      _roomListener = room.createListener();
+      _setupRoomListeners();
+
       // 3. Show meeting UI immediately
       isMicOn.value = false;
       isCameraOn.value = false;
@@ -91,8 +101,10 @@ class MeetingService extends GetxService {
     }
   }
 
-  /// Disconnect and hide the overlay.
   Future<void> leaveMeeting() async {
+    await _roomListener?.dispose();
+    _roomListener = null;
+
     await _room?.disconnect();
     _room = null;
     isInMeeting.value = false;
@@ -102,6 +114,8 @@ class MeetingService extends GetxService {
     isMicOn.value = true;
     isCameraOn.value = true;
     isScreenSharing.value = false;
+    activeScreenShareTrack.value = null;
+    activeVideoTrack.value = null;
     participantCount.value = 1;
     _meetingName = '';
   }
@@ -118,6 +132,33 @@ class MeetingService extends GetxService {
 
   // ─── Controls ──────────────────────────────────────────────────
 
+  void _setupRoomListeners() {
+    _roomListener?.on<TrackSubscribedEvent>((event) {
+      if (event.publication.source == TrackSource.screenShareVideo) {
+        activeScreenShareTrack.value = event.track as VideoTrack?;
+        isScreenSharing.value =
+            true; // Refers to the session having a screen share
+      } else if (event.track is RemoteVideoTrack &&
+          event.publication.source == TrackSource.camera) {
+        if (activeVideoTrack.value == null) {
+          activeVideoTrack.value = event.track as VideoTrack?;
+        }
+      }
+    });
+
+    _roomListener?.on<TrackUnsubscribedEvent>((event) {
+      if (event.publication.source == TrackSource.screenShareVideo) {
+        // If the unsubscribed track is our active one, remove it.
+        if (activeScreenShareTrack.value == event.track) {
+          activeScreenShareTrack.value = null;
+          isScreenSharing.value = false;
+        }
+      } else if (event.track == activeVideoTrack.value) {
+        activeVideoTrack.value = null;
+      }
+    });
+  }
+
   Future<void> toggleMic() async {
     isMicOn.value = !isMicOn.value;
     await _room?.localParticipant?.setMicrophoneEnabled(isMicOn.value);
@@ -129,8 +170,21 @@ class MeetingService extends GetxService {
   }
 
   Future<void> toggleScreenShare() async {
-    isScreenSharing.value = !isScreenSharing.value;
-    await _room?.localParticipant?.setScreenShareEnabled(isScreenSharing.value);
+    final newState = !isScreenSharing.value;
+    isScreenSharing.value = newState;
+    await _room?.localParticipant?.setScreenShareEnabled(newState);
+
+    // Attempt to quickly grab our local sharing track from our participant object
+    if (newState) {
+      final pub = _room?.localParticipant?.getTrackPublicationBySource(
+        TrackSource.screenShareVideo,
+      );
+      if (pub?.track is VideoTrack) {
+        activeScreenShareTrack.value = pub?.track as VideoTrack;
+      }
+    } else {
+      activeScreenShareTrack.value = null;
+    }
   }
 
   // ─── Display mode ──────────────────────────────────────────────

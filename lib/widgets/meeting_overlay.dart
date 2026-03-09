@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:livekit_client/livekit_client.dart';
 import '../services/meeting_service.dart';
 import '../theme/app_theme.dart';
 
@@ -321,39 +322,60 @@ class _MeetingOverlayState extends State<MeetingOverlay>
                   ),
                 ),
                 child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          gradient: AppTheme.accentGradient,
-                          borderRadius: BorderRadius.circular(22),
+                  child: Obx(() {
+                    final screenTrack = _service.activeScreenShareTrack.value;
+                    final videoTrack = _service.activeVideoTrack.value;
+
+                    if (screenTrack != null) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: VideoTrackRenderer(
+                          screenTrack,
+                          fit: VideoViewFit.contain,
                         ),
-                        child: const Center(
-                          child: Text(
-                            'U',
-                            style: TextStyle(
-                              fontSize: 34,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                      );
+                    } else if (videoTrack != null) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: VideoTrackRenderer(
+                          videoTrack,
+                          fit: VideoViewFit.cover,
+                        ),
+                      );
+                    }
+
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            gradient: AppTheme.accentGradient,
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'U',
+                              style: TextStyle(
+                                fontSize: 34,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'You',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary(context),
+                        const SizedBox(height: 16),
+                        Text(
+                          'You',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary(context),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 6),
-                      Obx(
-                        () => Text(
+                        const SizedBox(height: 6),
+                        Text(
                           _service.isCameraOn.value
                               ? 'Camera is on'
                               : 'Camera is off',
@@ -362,9 +384,9 @@ class _MeetingOverlayState extends State<MeetingOverlay>
                             fontSize: 13,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    );
+                  }),
                 ),
               ),
             ),

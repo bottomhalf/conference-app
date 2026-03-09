@@ -1,7 +1,10 @@
 import 'package:conference/config/app_config.dart';
 import 'package:conference/services/http_service.dart';
+import 'package:conference/services/meeting_service.dart';
 import 'package:conference_sdk/conference_sdk.dart';
+import 'package:livekit_client/livekit_client.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../theme/app_theme.dart';
 
 class MeetingRoomPage extends StatefulWidget {
@@ -303,42 +306,67 @@ class _MeetingRoomPageState extends State<MeetingRoomPage> {
                   ),
                 ),
                 child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          gradient: AppTheme.accentGradient,
-                          borderRadius: BorderRadius.circular(22),
+                  child: Obx(() {
+                    final screenTrack =
+                        MeetingService.instance.activeScreenShareTrack.value;
+                    final videoTrack =
+                        MeetingService.instance.activeVideoTrack.value;
+
+                    if (screenTrack != null) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: VideoTrackRenderer(
+                          screenTrack,
+                          fit: VideoViewFit.contain,
                         ),
-                        child: const Center(
-                          child: Text(
-                            'U',
-                            style: TextStyle(
-                              fontSize: 34,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                      );
+                    } else if (videoTrack != null) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(24),
+                        child: VideoTrackRenderer(
+                          videoTrack,
+                          fit: VideoViewFit.cover,
+                        ),
+                      );
+                    }
+
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            gradient: AppTheme.accentGradient,
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'U',
+                              style: TextStyle(
+                                fontSize: 34,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'You',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        _isCameraOn ? 'Camera is on' : 'Camera is off',
-                        style: TextStyle(
-                          color: AppTheme.textSecondary(context),
-                          fontSize: 13,
+                        const SizedBox(height: 16),
+                        Text(
+                          'You',
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(height: 6),
+                        Text(
+                          _isCameraOn ? 'Camera is on' : 'Camera is off',
+                          style: TextStyle(
+                            color: AppTheme.textSecondary(context),
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                 ),
               ),
             ),
