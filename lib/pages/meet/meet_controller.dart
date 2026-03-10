@@ -1,5 +1,6 @@
 import 'package:conference/models/api_response.dart';
 import 'package:conference/models/meeting_model.dart';
+import 'package:conference/models/user_model.dart';
 import 'package:conference/services/http_service.dart';
 import 'package:conference/services/meeting_service.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ class MeetController extends GetxController {
   final accessCodeCtrl = TextEditingController();
   final formKey = GlobalKey<FormState>();
   final http = HttpService.instance;
+  final _user = UserModel.instance;
 
   final isJoining = false.obs;
 
@@ -46,11 +48,14 @@ class MeetController extends GetxController {
   /// Open a recent meeting → triggers the PiP overlay.
   void openMeeting(MeetingModel meeting) {
     isJoining.value = true;
+    MeetingParticipant user = meeting.participants
+        .where((x) => x.userId == _user.userId)
+        .first;
 
     try {
       MeetingService.instance.joinMeeting(
         roomId: meeting.id,
-        participantName: 'Vivek Kumar',
+        participantName: user.fullName,
         meetingTitle: meeting.conversationName,
       );
     } catch (e) {

@@ -1,10 +1,10 @@
 {
     "env": "development",
     "apiBaseUrl": "https://www.confeet.com/api/",
-    "wsBaseUrl": "ws://localhost:8402/cf/meet",
+    "wsBaseUrl": "wss://www.confeet.com/cf/meet",
     "livekitUrl": "www.confeet.com",
-    "port": 3000,
-    "connectionTimeout": 30,
+    "port": 443,
+    "connectionTimeout": 15,
     "enableLogs": true,
     "socketHandshakEndpoint": "ws"
 }
