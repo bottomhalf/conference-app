@@ -38,6 +38,7 @@ class MeetingService extends GetxService {
   String get meetingName => _meetingName;
 
   final participantCount = 1.obs;
+  final participants = <Participant>[].obs;
 
   // ─── Join / Leave ──────────────────────────────────────────────
 
@@ -66,7 +67,7 @@ class MeetingService extends GetxService {
       );
 
       _room = room;
-      participantCount.value = room.remoteParticipants.length + 1;
+      _updateParticipants();
 
       _roomListener = room.createListener();
       _setupRoomListeners();
@@ -133,6 +134,20 @@ class MeetingService extends GetxService {
   // ─── Controls ──────────────────────────────────────────────────
 
   void _setupRoomListeners() {
+    _roomListener?.on<RoomEvent>((event) {
+      if (event is ParticipantConnectedEvent ||
+          event is ParticipantDisconnectedEvent) {
+        _updateParticipants();
+      } else if (event is TrackSubscribedEvent ||
+          event is TrackUnsubscribedEvent ||
+          event is LocalTrackPublishedEvent ||
+          event is LocalTrackUnpublishedEvent ||
+          event is TrackMutedEvent ||
+          event is TrackUnmutedEvent) {
+        participants.refresh(); // rebuild UI for changed video/audio states
+      }
+    });
+
     _roomListener?.on<TrackSubscribedEvent>((event) {
       if (event.publication.source == TrackSource.screenShareVideo) {
         activeScreenShareTrack.value = event.track as VideoTrack?;
@@ -157,6 +172,15 @@ class MeetingService extends GetxService {
         activeVideoTrack.value = null;
       }
     });
+  }
+
+  void _updateParticipants() {
+    if (_room == null) return;
+    participants.assignAll([
+      _room!.localParticipant!,
+      ..._room!.remoteParticipants.values,
+    ]);
+    participantCount.value = participants.length;
   }
 
   Future<void> toggleMic() async {

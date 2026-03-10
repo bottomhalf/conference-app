@@ -4,6 +4,7 @@ import 'package:livekit_client/livekit_client.dart';
 import '../../services/meeting_service.dart';
 import '../../theme/app_theme.dart';
 import 'bottom_controls.dart';
+import 'participant_grid.dart';
 
 class VideoArea extends StatefulWidget {
   const VideoArea({super.key});
@@ -14,10 +15,19 @@ class VideoArea extends StatefulWidget {
 
 class _VideoAreaState extends State<VideoArea> {
   bool _isScreenRotated = false;
+  bool _isControlsVisible = true;
 
   void _toggleRotation() {
+    debugPrint('Toggling rotation--------------------------------');
     setState(() {
       _isScreenRotated = !_isScreenRotated;
+    });
+  }
+
+  void _toggleControls() {
+    debugPrint('Toggling controls--------------------------------');
+    setState(() {
+      _isControlsVisible = !_isControlsVisible;
     });
   }
 
@@ -27,18 +37,18 @@ class _VideoAreaState extends State<VideoArea> {
 
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(2),
         child: Stack(
           alignment: Alignment.center,
           children: [
             // Video Background/Player
             Positioned.fill(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(8),
                 child: Container(
                   decoration: BoxDecoration(
                     color: AppTheme.card(context),
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: AppTheme.divider(context).withValues(alpha: 0.3),
                     ),
@@ -46,7 +56,6 @@ class _VideoAreaState extends State<VideoArea> {
                   child: Center(
                     child: Obx(() {
                       final screenTrack = service.activeScreenShareTrack.value;
-                      final videoTrack = service.activeVideoTrack.value;
 
                       if (screenTrack != null) {
                         Widget player = VideoTrackRenderer(
@@ -65,7 +74,7 @@ class _VideoAreaState extends State<VideoArea> {
                           alignment: Alignment.center,
                           children: [
                             GestureDetector(
-                              onTap: _toggleRotation,
+                              onTap: _toggleControls,
                               child: player,
                             ),
                             Positioned(
@@ -89,54 +98,44 @@ class _VideoAreaState extends State<VideoArea> {
                             ),
                           ],
                         );
-                      } else if (videoTrack != null) {
-                        return VideoTrackRenderer(
-                          videoTrack,
-                          fit: VideoViewFit.cover,
+                      } else if (service.participants.isNotEmpty) {
+                        return GestureDetector(
+                          onTap: _toggleControls,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ParticipantGrid(
+                              participants: service.participants.toList(),
+                            ),
+                          ),
                         );
                       }
 
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(
-                              gradient: AppTheme.accentGradient,
-                              borderRadius: BorderRadius.circular(22),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                'U',
-                                style: TextStyle(
-                                  fontSize: 34,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
+                      // Fallback if participants array is somehow empty
+                      return GestureDetector(
+                        onTap: _toggleControls,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                gradient: AppTheme.accentGradient,
+                                borderRadius: BorderRadius.circular(22),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  'U',
+                                  style: TextStyle(
+                                    fontSize: 34,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'You',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.textPrimary(context),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            service.isCameraOn.value
-                                ? 'Camera is on'
-                                : 'Camera is off',
-                            style: TextStyle(
-                              color: AppTheme.textSecondary(context),
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       );
                     }),
                   ),
@@ -146,23 +145,22 @@ class _VideoAreaState extends State<VideoArea> {
 
             // Floating Bottom Controls
             Obx(() {
-              // We only want the bottom controls to rotate if the screen share
-              // is active AND the user has toggled the rotation button.
               final hasScreenShare =
                   service.activeScreenShareTrack.value != null;
               final shouldRotateControls = hasScreenShare && _isScreenRotated;
 
-              Widget controls = const BottomControls();
+              Widget controls = Visibility(
+                visible: _isControlsVisible,
+                child: const BottomControls(),
+              );
 
               if (shouldRotateControls) {
                 controls = RotatedBox(quarterTurns: 1, child: controls);
               }
 
               return Positioned(
-                bottom: shouldRotateControls
-                    ? null
-                    : 24, // Reset bottom if rotated
-                left: shouldRotateControls ? 24 : 0, // Snap left if rotated
+                bottom: shouldRotateControls ? null : 24,
+                left: shouldRotateControls ? 24 : 0,
                 right: shouldRotateControls ? null : 0,
                 child: controls,
               );
