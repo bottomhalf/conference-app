@@ -28,7 +28,7 @@ class LoginController extends GetxController {
       // HttpService now returns only the ResponseBody on success,
       // or throws ApiException on failure.
       final responseBody = await HttpService.instance.login(
-        'auth/authenticateUser',
+        'auth/v2/authenticateMobileUser',
         body: {
           'email': emailCtrl.text.trim(),
           'password': passwordCtrl.text.trim(),

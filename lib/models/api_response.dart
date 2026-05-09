@@ -11,6 +11,8 @@ class ApiResponse {
   final String? errorMessage;
   final bool? isSuccess;
   final String? message;
+  final String? refreshToken;
+  final String? refreshTokenCorelationId;
 
   ApiResponse({
     this.accessToken,
@@ -21,10 +23,12 @@ class ApiResponse {
     this.errorMessage,
     this.isSuccess,
     this.message,
+    this.refreshToken,
+    this.refreshTokenCorelationId,
   });
 
   factory ApiResponse.fromJson(Map<String, dynamic> json) {
-    var statusCode = json['HttpStatusCode'] as int?;
+    var statusCode = json['httpStatusCode'] as int?;
     int code = 0;
     try {
       code = statusCode != null && statusCode == 200 ? 200 : 400;
@@ -32,14 +36,16 @@ class ApiResponse {
       code = 400;
     }
     return ApiResponse(
-      accessToken: json['AccessToken'] as String?,
+      accessToken: json['accessToken'] as String?,
       httpStatusCode: code,
-      httpStatusMessage: json['HttpStatusMessage'] as String? ?? '',
-      responseBody: json['ResponseBody'],
-      errorCode: json['ErrorCode'] as String?,
-      errorMessage: json['ErrorMessage'] as String?,
+      httpStatusMessage: json['httpStatusMessage'] as String? ?? '',
+      responseBody: json['responseBody'],
+      errorCode: json['errorCode'] as String?,
+      errorMessage: json['errorMessage'] as String?,
       isSuccess: code == 200,
-      message: json['Message'] as String?,
+      message: json['message'] as String?,
+      refreshToken: json['refreshToken'] as String?,
+      refreshTokenCorelationId: json['refreshTokenCorelationId'] as String?,
     );
   }
 

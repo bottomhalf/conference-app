@@ -1,6 +1,6 @@
 {
     "env": "development",
-    "apiBaseUrl": "https://www.confeet.com/api/",
+    "apiBaseUrl": "http://192.168.29.204:7801/api/",
     "wsBaseUrl": "wss://www.confeet.com/cf/meet",
     "livekitUrl": "www.confeet.com",
     "port": 443,

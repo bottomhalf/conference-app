@@ -23,6 +23,7 @@ class HttpService {
 
   // ─── State ──────────────────────────────────────────────────────
   String? _authToken;
+  bool _isRefreshing = false;
   late final http.Client _client = http.Client();
   final SecureStorageService _secureStorage = SecureStorageService.instance;
 
@@ -36,6 +37,17 @@ class HttpService {
   Future<void> setAuthToken(String token) async {
     _authToken = token;
     await _secureStorage.setToken(token);
+  }
+
+  /// Store the refresh token — saves to secure storage.
+  Future<void> setRefreshToken(String token) async {
+    await _secureStorage.setRefreshToken(token);
+  }
+
+  /// Store the auth token — saves to both memory and secure storage.
+  Future<void> setTokenDetail(ApiResponse apiResponse) async {
+    setAuthToken(apiResponse.accessToken!);
+    setRefreshToken(apiResponse.refreshToken!);
   }
 
   /// Clear the auth token (on logout).
@@ -123,6 +135,134 @@ class HttpService {
     return apiResponse;
   }
 
+  // ─── Token Refresh on 401 ────────────────────────────────────────
+
+  /// Maximum number of retry attempts for token regeneration.
+  static const int _maxRetryAttempts = 3;
+
+  /// Calls `auth/v2/generateAccessToken` with the refresh token
+  /// retrieved from [FlutterSecureStorage] passed in the header.
+  ///
+  /// Retries up to [_maxRetryAttempts] times on failure. If all
+  /// attempts fail, clears stored tokens (logout) and throws
+  /// [ApiException] so the UI can redirect to the login page.
+  Future<void> _regenerateAccessToken() async {
+    final refreshToken = await _secureStorage.getRefreshToken();
+
+    if (refreshToken == null || refreshToken.isEmpty) {
+      await _cleanupAndLogout();
+      throw ApiException(
+        message: 'Session expired. Please log in again.',
+        statusCode: 401,
+        errorCode: 'MISSING_REFRESH_TOKEN',
+      );
+    }
+
+    Object? lastError;
+
+    for (int attempt = 1; attempt <= _maxRetryAttempts; attempt++) {
+      try {
+        debugPrint('Token refresh attempt $attempt/$_maxRetryAttempts');
+
+        final response = await _client
+            .post(
+              _uri('auth/v2/generateAccessToken'),
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': 'Bearer $refreshToken',
+              },
+            )
+            .timeout(_timeout);
+
+        _log('POST', 'auth/v2/generateAccessToken', response.statusCode);
+
+        if (response.statusCode != 200) {
+          throw ApiException(
+            message: 'Token refresh returned ${response.statusCode}',
+            statusCode: response.statusCode,
+            errorCode: 'TOKEN_REFRESH_FAILED',
+          );
+        }
+
+        final apiResponse = ApiResponse.fromJson(
+          jsonDecode(response.body) as Map<String, dynamic>,
+        );
+
+        validateTokens(apiResponse);
+        await setTokenDetail(apiResponse);
+
+        // Success — exit the retry loop
+        return;
+      } catch (e) {
+        lastError = e;
+        debugPrint('Token refresh attempt $attempt failed: $e');
+
+        // Wait briefly before retrying (skip delay on last attempt)
+        if (attempt < _maxRetryAttempts) {
+          await Future.delayed(Duration(seconds: attempt));
+        }
+      }
+    }
+
+    // All attempts exhausted — cleanup and force logout
+    await _cleanupAndLogout();
+    throw ApiException(
+      message: 'Session expired. Please log in again.',
+      statusCode: 401,
+      errorCode: 'TOKEN_REFRESH_EXHAUSTED',
+    );
+  }
+
+  /// Clears all auth state from memory and secure storage.
+  Future<void> _cleanupAndLogout() async {
+    _authToken = null;
+    await _secureStorage.clearAll();
+  }
+
+  /// Attempts a silent auto-login by regenerating the access token
+  /// using the stored refresh token.
+  ///
+  /// Returns `true` if the refresh succeeded and the user is now
+  /// authenticated. Returns `false` if there is no refresh token
+  /// or the server rejected it — the caller should redirect to login.
+  Future<bool> tryAutoLogin() async {
+    try {
+      await _regenerateAccessToken();
+      return true;
+    } catch (e) {
+      debugPrint('Auto-login failed: $e');
+      return false;
+    }
+  }
+
+  /// Executes [requestFn], and if it throws a 401 [ApiException],
+  /// regenerates the access token and retries the request once.
+  Future<ApiResponse> _executeWithRetry(
+    Future<http.Response> Function() requestFn,
+    String method,
+    String path,
+  ) async {
+    try {
+      final response = await requestFn().timeout(_timeout);
+      return _processResponse(response, method, path);
+    } on ApiException catch (e) {
+      // Only attempt refresh on 401 and when not already refreshing
+      if (e.statusCode != 401 || _isRefreshing) rethrow;
+
+      _isRefreshing = true;
+      try {
+        await _regenerateAccessToken();
+      } finally {
+        _isRefreshing = false;
+      }
+
+      // Retry the original request with the new token
+      final retryResponse = await requestFn().timeout(_timeout);
+      return _processResponse(retryResponse, method, path);
+    }
+  }
+
   // ─── Public API ─────────────────────────────────────────────────
 
   Future<String> getMeetingToken(
@@ -134,6 +274,29 @@ class HttpService {
       body: {'roomName': roomName, 'participantName': participantName},
     );
     return response.accessToken;
+  }
+
+  /// Validates that both [accessToken] and [refreshToken] are present
+  /// in the [ApiResponse]. Throws [ApiException] if either is missing
+  /// so the calling controller can display the error on the UI.
+  void validateTokens(ApiResponse apiResponse) {
+    if (apiResponse.accessToken == null || apiResponse.accessToken!.isEmpty) {
+      throw ApiException(
+        message: 'Authentication failed: access token not received. Please try again.',
+        statusCode: 401,
+        errorCode: 'MISSING_ACCESS_TOKEN',
+        apiResponse: apiResponse,
+      );
+    }
+
+    if (apiResponse.refreshToken == null || apiResponse.refreshToken!.isEmpty) {
+      throw ApiException(
+        message: 'Authentication failed: refresh token not received. Please try again.',
+        statusCode: 401,
+        errorCode: 'MISSING_REFRESH_TOKEN',
+        apiResponse: apiResponse,
+      );
+    }
   }
 
   /// HTTP POST (LOGIN) — returns `ResponseBody` on success.
@@ -149,62 +312,72 @@ class HttpService {
         .timeout(_timeout);
     var apiResponse = _processResponse(response, 'POST', path);
 
-    // Auto-store the access token if present
-    if (apiResponse.accessToken != null &&
-        apiResponse.accessToken!.isNotEmpty) {
-      setAuthToken(apiResponse.accessToken!);
-      _secureStorage.setToken(apiResponse.accessToken!);
-    }
+    // Validate token and refresh token
+    validateTokens(apiResponse);
+
+    setTokenDetail(apiResponse);
 
     return apiResponse.responseBody;
   }
 
   /// HTTP GET — returns `ResponseBody` on success.
+  /// Automatically retries once on 401 after refreshing the access token.
   ///
   /// Throws [ApiException] on failure.
   Future<dynamic> get(String path, {Map<String, String>? queryParams}) async {
-    final response = await _client
-        .get(_uri(path, queryParams), headers: _headers)
-        .timeout(_timeout);
-    return _processResponse(response, 'GET', path);
+    final apiResponse = await _executeWithRetry(
+      () => _client.get(_uri(path, queryParams), headers: _headers),
+      'GET',
+      path,
+    );
+    return apiResponse;
   }
 
   /// HTTP POST — returns `ResponseBody` on success.
+  /// Automatically retries once on 401 after refreshing the access token.
   ///
   /// Throws [ApiException] on failure.
   Future<dynamic> post(String path, {Object? body}) async {
-    final response = await _client
-        .post(
-          _uri(path),
-          headers: _headers,
-          body: body != null ? jsonEncode(body) : null,
-        )
-        .timeout(_timeout);
-    return _processResponse(response, 'POST', path);
+    final apiResponse = await _executeWithRetry(
+      () => _client.post(
+        _uri(path),
+        headers: _headers,
+        body: body != null ? jsonEncode(body) : null,
+      ),
+      'POST',
+      path,
+    );
+    return apiResponse;
   }
 
   /// HTTP PUT — returns `ResponseBody` on success.
+  /// Automatically retries once on 401 after refreshing the access token.
   ///
   /// Throws [ApiException] on failure.
   Future<dynamic> put(String path, {Object? body}) async {
-    final response = await _client
-        .put(
-          _uri(path),
-          headers: _headers,
-          body: body != null ? jsonEncode(body) : null,
-        )
-        .timeout(_timeout);
-    return _processResponse(response, 'PUT', path);
+    final apiResponse = await _executeWithRetry(
+      () => _client.put(
+        _uri(path),
+        headers: _headers,
+        body: body != null ? jsonEncode(body) : null,
+      ),
+      'PUT',
+      path,
+    );
+    return apiResponse;
   }
 
   /// HTTP DELETE — returns `ResponseBody` on success.
+  /// Automatically retries once on 401 after refreshing the access token.
   ///
   /// Throws [ApiException] on failure.
   Future<dynamic> delete(String path) async {
-    final response = await _client
-        .delete(_uri(path), headers: _headers)
-        .timeout(_timeout);
-    return _processResponse(response, 'DELETE', path);
+    final apiResponse = await _executeWithRetry(
+      () => _client.delete(_uri(path), headers: _headers),
+      'DELETE',
+      path,
+    );
+    return apiResponse;
   }
 
   /// Dispose the underlying HTTP client.
