@@ -2,34 +2,62 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'widgets/login_form_card.dart';
 import 'widgets/login_header.dart';
-import '../../theme/app_theme.dart';
+import 'widgets/login_feature_chips.dart';
 import 'login_controller.dart';
 
 class LoginPage extends GetView<LoginController> {
   const LoginPage({super.key});
 
+  // ── Brand Colours ──
+  static const Color _deepNavy = Color(0xFF0A0E21);
+  static const Color _richIndigo = Color(0xFF4F46E5);
+  static const Color _electricBlue = Color(0xFF06B6D4);
+  static const Color _neonPurple = Color(0xFF8B5CF6);
+
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
+      backgroundColor: _deepNavy,
       body: Stack(
         children: [
-          // ── Background gradient orbs ──
-          _backgroundOrbs(context),
+          // ── Animated gradient background mesh ──
+          _buildGradientMesh(size),
 
-          // ── Main Content ──
+          // ── Subtle grid pattern overlay ──
+          Positioned.fill(
+            child: CustomPaint(painter: _GridPainter()),
+          ),
+
+          // ── Content ──
           SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const LoginHeader(),
-                    const SizedBox(height: 40),
-                    const LoginFormCard(),
-                    const SizedBox(height: 28),
-                    _buildFooter(context),
-                  ],
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: size.height -
+                      MediaQuery.of(context).padding.top -
+                      MediaQuery.of(context).padding.bottom,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 28),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 40),
+                      const LoginHeader(),
+                      const SizedBox(height: 32),
+                      const LoginFeatureChips(),
+                      const SizedBox(height: 36),
+                      const LoginFormCard(),
+                      const SizedBox(height: 28),
+                      _buildFooter(),
+                      const SizedBox(height: 20),
+                      _buildBottomInfo(),
+                      const SizedBox(height: 28),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -39,56 +67,66 @@ class LoginPage extends GetView<LoginController> {
     );
   }
 
-  Widget _backgroundOrbs(BuildContext context) {
+  /// ── Deep gradient mesh background ──
+  Widget _buildGradientMesh(Size size) {
     return Stack(
       children: [
+        // Top-left indigo orb
         Positioned(
-          top: -100,
-          left: -80,
+          top: -size.height * 0.15,
+          left: -size.width * 0.3,
           child: Container(
-            width: 300,
-            height: 300,
+            width: size.width * 0.9,
+            height: size.width * 0.9,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  AppTheme.accentPurple.withValues(alpha: 0.22),
+                  _richIndigo.withValues(alpha: 0.35),
+                  _richIndigo.withValues(alpha: 0.05),
                   Colors.transparent,
                 ],
+                stops: const [0.0, 0.5, 1.0],
               ),
             ),
           ),
         ),
+        // Center-right cyan orb
         Positioned(
-          bottom: -120,
-          right: -60,
+          top: size.height * 0.3,
+          right: -size.width * 0.25,
           child: Container(
-            width: 350,
-            height: 350,
+            width: size.width * 0.7,
+            height: size.width * 0.7,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  AppTheme.primaryIndigo.withValues(alpha: 0.18),
+                  _electricBlue.withValues(alpha: 0.2),
+                  _electricBlue.withValues(alpha: 0.03),
                   Colors.transparent,
                 ],
+                stops: const [0.0, 0.5, 1.0],
               ),
             ),
           ),
         ),
+        // Bottom-left purple orb
         Positioned(
-          top: MediaQuery.of(context).size.height * 0.35,
-          right: -40,
+          bottom: -size.height * 0.08,
+          left: -size.width * 0.15,
           child: Container(
-            width: 160,
-            height: 160,
+            width: size.width * 0.65,
+            height: size.width * 0.65,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  const Color(0xFF9B59B6).withValues(alpha: 0.12),
+                  _neonPurple.withValues(alpha: 0.22),
+                  _neonPurple.withValues(alpha: 0.03),
                   Colors.transparent,
                 ],
+                stops: const [0.0, 0.5, 1.0],
               ),
             ),
           ),
@@ -97,24 +135,24 @@ class LoginPage extends GetView<LoginController> {
     );
   }
 
-  Widget _buildFooter(BuildContext context) {
+  Widget _buildFooter() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           "Don't have an account? ",
           style: TextStyle(
-            color: AppTheme.textSecondary(context),
-            fontSize: 13,
+            color: Colors.white.withValues(alpha: 0.5),
+            fontSize: 14,
           ),
         ),
         GestureDetector(
           onTap: () {},
-          child: Text(
+          child: const Text(
             'Sign Up',
             style: TextStyle(
-              color: AppTheme.accentPurple,
-              fontSize: 13,
+              color: Color(0xFF06B6D4),
+              fontSize: 14,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -122,4 +160,52 @@ class LoginPage extends GetView<LoginController> {
       ],
     );
   }
+
+  Widget _buildBottomInfo() {
+    return Column(
+      children: [
+        Divider(
+          color: Colors.white.withValues(alpha: 0.08),
+          thickness: 1,
+        ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.shield_outlined,
+                size: 14, color: Colors.white.withValues(alpha: 0.3)),
+            const SizedBox(width: 6),
+            Text(
+              'End-to-end encrypted  •  SOC 2 Compliant',
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.3),
+                fontSize: 11,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// ── Subtle dot-grid pattern painter ──
+class _GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.03)
+      ..strokeWidth = 1;
+
+    const spacing = 32.0;
+    for (double x = 0; x < size.width; x += spacing) {
+      for (double y = 0; y < size.height; y += spacing) {
+        canvas.drawCircle(Offset(x, y), 0.6, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

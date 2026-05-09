@@ -1,32 +1,36 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../theme/app_theme.dart';
 import '../login_controller.dart';
 
 class LoginFormCard extends GetView<LoginController> {
   const LoginFormCard({super.key});
 
+  static const Color _richIndigo = Color(0xFF4F46E5);
+  static const Color _electricBlue = Color(0xFF06B6D4);
+  static const Color _neonPurple = Color(0xFF8B5CF6);
+
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(24),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
         child: Container(
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
             gradient: LinearGradient(
-              colors: [
-                AppTheme.card(context).withValues(alpha: 0.9),
-                AppTheme.cardAlt(context).withValues(alpha: 0.75),
-              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.1),
+                Colors.white.withValues(alpha: 0.04),
+              ],
             ),
-            borderRadius: BorderRadius.circular(22),
             border: Border.all(
-              color: AppTheme.accentPurple.withValues(alpha: 0.18),
+              color: Colors.white.withValues(alpha: 0.12),
+              width: 1,
             ),
           ),
           child: Form(
@@ -35,80 +39,57 @@ class LoginFormCard extends GetView<LoginController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // ── Email ──
-                Text(
-                  'Email',
-                  style: TextStyle(
-                    color: AppTheme.textSecondary(context),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
+                _buildLabel('Email Address', Icons.alternate_email_rounded),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: controller.emailCtrl,
                   keyboardType: TextInputType.emailAddress,
-                  style: TextStyle(
-                    color: AppTheme.textPrimary(context),
-                    fontSize: 14,
-                  ),
-                  decoration: const InputDecoration(
-                    hintText: 'you@company.com',
-                    prefixIcon: Icon(Icons.email_outlined, size: 20),
+                  style: const TextStyle(color: Colors.white, fontSize: 15),
+                  cursorColor: _electricBlue,
+                  decoration: _inputDecoration(
+                    hint: 'you@company.com',
+                    icon: Icons.email_outlined,
                   ),
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty)
-                      return 'Email is required';
+                    if (v == null || v.trim().isEmpty) return 'Email is required';
                     if (!v.contains('@')) return 'Enter a valid email';
                     return null;
                   },
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 22),
 
                 // ── Password ──
-                Text(
-                  'Password',
-                  style: TextStyle(
-                    color: AppTheme.textSecondary(context),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
+                _buildLabel('Password', Icons.lock_outline_rounded),
+                const SizedBox(height: 10),
                 Obx(
                   () => TextFormField(
                     controller: controller.passwordCtrl,
                     obscureText: controller.obscurePassword.value,
-                    style: TextStyle(
-                      color: AppTheme.textPrimary(context),
-                      fontSize: 14,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: '••••••••',
-                      prefixIcon: const Icon(
-                        Icons.lock_outline_rounded,
-                        size: 20,
-                      ),
+                    style: const TextStyle(color: Colors.white, fontSize: 15),
+                    cursorColor: _electricBlue,
+                    decoration: _inputDecoration(
+                      hint: '••••••••',
+                      icon: Icons.lock_outline_rounded,
+                    ).copyWith(
                       suffixIcon: IconButton(
                         icon: Icon(
                           controller.obscurePassword.value
                               ? Icons.visibility_off_rounded
                               : Icons.visibility_rounded,
                           size: 20,
-                          color: AppTheme.textSecondary(context),
+                          color: Colors.white.withValues(alpha: 0.4),
                         ),
                         onPressed: controller.togglePasswordVisibility,
                       ),
                     ),
                     validator: (v) {
-                      if (v == null || v.trim().isEmpty) {
-                        return 'Password is required';
-                      }
+                      if (v == null || v.trim().isEmpty) return 'Password is required';
                       if (v.length < 6) return 'At least 6 characters';
                       return null;
                     },
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
 
                 // ── Forgot password ──
                 Align(
@@ -123,28 +104,32 @@ class LoginFormCard extends GetView<LoginController> {
                     child: Text(
                       'Forgot password?',
                       style: TextStyle(
-                        color: AppTheme.accentPurple,
+                        color: _electricBlue.withValues(alpha: 0.85),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 28),
 
                 // ── Sign-in button ──
                 SizedBox(
                   width: double.infinity,
-                  height: 52,
+                  height: 56,
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      gradient: AppTheme.accentGradient,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [_richIndigo, _neonPurple],
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppTheme.primaryIndigo.withValues(alpha: 0.35),
-                          blurRadius: 16,
-                          offset: const Offset(0, 6),
+                          color: _richIndigo.withValues(alpha: 0.45),
+                          blurRadius: 24,
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
@@ -157,13 +142,13 @@ class LoginFormCard extends GetView<LoginController> {
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
                         child: controller.isLoading.value
                             ? const SizedBox(
-                                width: 22,
-                                height: 22,
+                                width: 24,
+                                height: 24,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.5,
                                   color: Colors.white,
@@ -172,18 +157,159 @@ class LoginFormCard extends GetView<LoginController> {
                             : const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.login_rounded, size: 20),
-                                  SizedBox(width: 10),
-                                  Text('Sign In'),
+                                  Icon(Icons.rocket_launch_rounded,
+                                      size: 20, color: Colors.white),
+                                  SizedBox(width: 12),
+                                  Text(
+                                    'Launch Meeting',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
                                 ],
                               ),
                       ),
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 20),
+
+                // ── Divider with "or" ──
+                Row(
+                  children: [
+                    Expanded(
+                      child: Divider(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'or continue with',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.35),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Divider(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // ── Social login row ──
+                Row(
+                  children: [
+                    Expanded(child: _socialButton(Icons.g_mobiledata_rounded, 'Google')),
+                    const SizedBox(width: 12),
+                    Expanded(child: _socialButton(Icons.business_rounded, 'SSO')),
+                  ],
+                ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLabel(String text, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: _electricBlue.withValues(alpha: 0.7)),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.7),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  InputDecoration _inputDecoration({
+    required String hint,
+    required IconData icon,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(
+        color: Colors.white.withValues(alpha: 0.25),
+        fontSize: 14,
+      ),
+      prefixIcon: Icon(icon, size: 20, color: Colors.white.withValues(alpha: 0.35)),
+      filled: true,
+      fillColor: Colors.white.withValues(alpha: 0.07),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(
+          color: Colors.white.withValues(alpha: 0.08),
+          width: 1,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: BorderSide(
+          color: _electricBlue.withValues(alpha: 0.6),
+          width: 1.5,
+        ),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
+      ),
+    );
+  }
+
+  Widget _socialButton(IconData icon, String label) {
+    return InkWell(
+      onTap: () {},
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.1),
+            width: 1,
+          ),
+          color: Colors.white.withValues(alpha: 0.04),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 22, color: Colors.white.withValues(alpha: 0.6)),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.6),
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ),
     );

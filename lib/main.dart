@@ -6,6 +6,8 @@ import 'config/app_config.dart';
 import 'core/storage/storage.dart';
 import 'services/http_service.dart';
 import 'services/meeting_service.dart';
+import 'pages/splash/splash_page.dart';
+import 'pages/splash/splash_controller.dart';
 import 'pages/team/team_controller.dart';
 import 'pages/team/chat_detail_controller.dart';
 import 'pages/team/chat_detail_page.dart';
@@ -57,8 +59,15 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeService.instance.themeMode,
-      initialRoute: '/login',
+      initialRoute: '/splash',
       getPages: [
+        GetPage(
+          name: '/splash',
+          page: () => const SplashPage(),
+          binding: BindingsBuilder(() {
+            Get.put(SplashController());
+          }),
+        ),
         GetPage(
           name: '/login',
           page: () => const LoginPage(),

@@ -50,16 +50,19 @@ dependencies:
 
 
 flutter_native_splash:
-  color: "#ffffff"
-  image: assets/images/logo.png
+  color: "#0A0E21"
+  image: assets/images/splash_icon_with_text.png
   android: true
   ios: true
+  fullscreen: true
 
 flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/images/logo.png"
-  min_sdk_android: 21  
+  min_sdk_android: 21
+  adaptive_icon_background: "#0A0E21"
+  adaptive_icon_foreground: "assets/images/logo.png"
 
 dev_dependencies:
   flutter_test:
@@ -86,6 +89,9 @@ flutter:
   assets:
     - assets/config/
     - assets/images/logo.png
+    - assets/images/illustration.png
+    - assets/images/bg.png
+    - assets/images/splash_full.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -1,47 +1,80 @@
 import 'package:flutter/material.dart';
-import '../../../theme/app_theme.dart';
 
 class LoginHeader extends StatelessWidget {
   const LoginHeader({super.key});
 
+  static const Color _richIndigo = Color(0xFF4F46E5);
+  static const Color _electricBlue = Color(0xFF06B6D4);
+  static const Color _neonPurple = Color(0xFF8B5CF6);
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // ── Logo ──
-        Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            gradient: AppTheme.accentGradient,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: AppTheme.primaryIndigo.withValues(alpha: 0.35),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // ── App Logo from asset ──
+          Container(
+            width: 68,
+            height: 68,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: _neonPurple.withValues(alpha: 0.4),
+                  blurRadius: 28,
+                  offset: const Offset(0, 10),
+                ),
+                BoxShadow(
+                  color: _richIndigo.withValues(alpha: 0.25),
+                  blurRadius: 40,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.asset(
+                'assets/images/logo.png',
+                fit: BoxFit.contain,
               ),
-            ],
+            ),
           ),
-          child: const Icon(
-            Icons.videocam_rounded,
-            color: Colors.white,
-            size: 34,
+          const SizedBox(height: 28),
+
+          // ── App Title ──
+          ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+              colors: [Colors.white, Color(0xFF06B6D4)],
+            ).createShader(bounds),
+            child: const Text(
+              'Conference AI',
+              style: TextStyle(
+                fontSize: 36,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                letterSpacing: -0.5,
+                height: 1.1,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
-        ),
-        const SizedBox(height: 28),
-        Text(
-          'Conference',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineLarge?.copyWith(fontSize: 30),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Sign in to start your meeting',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-      ],
+          const SizedBox(height: 14),
+
+          // ── Subtitle with AI context ──
+          Text(
+            'AI-powered meetings with crisp audio,\nHD video & smart transcription',
+            style: TextStyle(
+              fontSize: 15,
+              color: Colors.white.withValues(alpha: 0.55),
+              height: 1.6,
+              letterSpacing: 0.2,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

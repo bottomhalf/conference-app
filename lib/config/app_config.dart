@@ -44,7 +44,7 @@ class AppConfig {
 
   // ─── Initializer ───────────────────────────────────────────────
   static Future<void> initialize() async {
-    const env = String.fromEnvironment('ENV', defaultValue: 'development');
+    const env = String.fromEnvironment('ENV', defaultValue: 'production');
     final jsonStr = await rootBundle.loadString('assets/config/$env.json');
     final Map<String, dynamic> json = jsonDecode(jsonStr);
 
