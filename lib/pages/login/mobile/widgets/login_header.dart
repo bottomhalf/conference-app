@@ -4,7 +4,7 @@ class LoginHeader extends StatelessWidget {
   const LoginHeader({super.key});
 
   static const Color _richIndigo = Color(0xFF4F46E5);
-  static const Color _electricBlue = Color(0xFF06B6D4);
+
   static const Color _neonPurple = Color(0xFF8B5CF6);
 
   @override

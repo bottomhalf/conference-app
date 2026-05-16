@@ -5,7 +5,11 @@ import '../../models/meeting_model.dart';
 import '../../models/chat_message_model.dart';
 
 class ChatDetailController extends GetxController {
-  final MeetingModel conversation = Get.arguments as MeetingModel;
+  late final MeetingModel conversation;
+
+  ChatDetailController({MeetingModel? conversation}) {
+    this.conversation = conversation ?? Get.arguments as MeetingModel;
+  }
 
   final RxList<ChatMessage> messages = <ChatMessage>[].obs;
   final RxBool isLoading = true.obs;

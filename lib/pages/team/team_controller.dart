@@ -11,6 +11,9 @@ class TeamController extends GetxController {
   final RxString errorMessage = ''.obs;
   final RxList<MeetingModel> conversations = <MeetingModel>[].obs;
 
+  /// Currently selected conversation for desktop master-detail view.
+  final Rx<MeetingModel?> selectedConversation = Rx<MeetingModel?>(null);
+
   @override
   void onInit() {
     super.onInit();
@@ -45,7 +48,13 @@ class TeamController extends GetxController {
     }
   }
 
+  /// Opens a conversation in a new route (used on mobile).
   void openTeam(MeetingModel meeting) {
     Get.toNamed('/chat-detail', arguments: meeting);
+  }
+
+  /// Selects a conversation inline (used on desktop master-detail).
+  void selectConversation(MeetingModel meeting) {
+    selectedConversation.value = meeting;
   }
 }

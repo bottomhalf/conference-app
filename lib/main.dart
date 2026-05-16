@@ -89,6 +89,10 @@ class MyApp extends StatelessWidget {
           name: '/chat-detail',
           page: () => const ChatDetailPage(),
           binding: BindingsBuilder(() {
+            // MainController needed for desktop side menu
+            if (!Get.isRegistered<MainController>()) {
+              Get.lazyPut(() => MainController());
+            }
             Get.lazyPut(() => ChatDetailController());
           }),
         ),
